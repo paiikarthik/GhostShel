@@ -282,10 +282,17 @@ def create_app(config_class=Config):
 app = create_app()
 
 if __name__ == "__main__":
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
     # strictly bind to local loopback 127.0.0.1 for privacy
     host = Config.HOST
     port = Config.PORT
     debug = Config.DEBUG
-    print(f"👻 GhostShell: The Haunted AI Terminal starting on http://{host}:{port}")
-    print("🔒 Commands are analyzed deterministically as text and are NEVER executed.")
+    print(f"[GhostShell] The Haunted AI Terminal starting on http://{host}:{port}")
+    print("[Safety] Commands are analyzed deterministically as text and are NEVER executed.")
     app.run(host=host, port=port, debug=debug)
