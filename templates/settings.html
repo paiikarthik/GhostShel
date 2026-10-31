@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings & Privacy — GhostShell 👻</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <a href="/" class="header-brand">
+        <img src="/static/images/ghost.svg" alt="GhostShell Logo" class="header-logo">
+        <div class="brand-text">
+          <h1>GhostShell</h1>
+          <span class="tagline">The Haunted AI Terminal // Settings</span>
+        </div>
+      </a>
+      <div class="header-controls">
+        <a href="/" class="btn-icon" style="text-decoration:none;">← Return to Terminal</a>
+      </div>
+    </header>
+
+    <main class="main-workspace" style="flex-direction: column; margin-top: 20px;">
+      <!-- Local AI Configuration -->
+      <section class="analysis-card" style="margin-top: 0;">
+        <div class="card-header">
+          <div class="card-command">🤖 Local AI Engine Configuration (Ollama)</div>
+          <div class="risk-badge {% if status.available and status.model_available %}badge-safe{% else %}badge-high{% endif %}">
+            {% if status.available and status.model_available %}ONLINE{% elif status.available %}MODEL MISSING{% else %}OFFLINE{% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          <p style="color: var(--term-white);">
+            GhostShell uses <strong>Ollama</strong> as its local inference runtime. Prompts and terminal commands remain entirely on your local machine.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 10px;">
+            <div class="info-box">
+              <h4>Base Endpoint</h4>
+              <code>{{ config.OLLAMA_BASE_URL }}</code>
+            </div>
+            <div class="info-box">
+              <h4>Active Model</h4>
+              <code>{{ status.current_model }}</code>
+            </div>
+            <div class="info-box">
+              <h4>Ollama Reachable</h4>
+              <span>{% if status.available %}✅ Yes{% else %}❌ Offline{% endif %}</span>
+            </div>
+          </div>
+
+          <!-- Installed Models List -->
+          <div style="margin-top: 14px;">
+            <div class="section-label">Locally Installed Models ({{ status.installed_models|length }})</div>
+            {% if status.installed_models %}
+              <ul class="findings-list">
+                {% for m in status.installed_models %}
+                  <li>
+                    <strong>{{ m.name }}</strong> 
+                    <span style="color: var(--term-gray);">({{ (m.size / 1073741824)|round(2) }} GB)</span>
+                    {% if m.name == status.current_model or m.name.split(':')[0] == status.current_model %}
+                      <span class="risk-badge badge-safe" style="padding: 1px 6px; font-size: 0.7rem; margin-left: 6px;">Active</span>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p style="color: var(--term-gray); font-style: italic;">No models detected in local Ollama storage.</p>
+            {% endif %}
+          </div>
+
+          <!-- Switch Model Form -->
+          <div style="margin-top: 16px;">
+            <div class="section-label">Switch Active Model</div>
+            <div style="display: flex; gap: 10px; max-width: 500px;">
+              <input type="text" id="settingsCustomModel" class="archive-input" style="flex: 1;" placeholder="Enter model name (e.g. qwen2.5:3b, llama3.2:1b)" value="{{ status.current_model }}">
+              <button id="settingsSaveBtn" class="btn-send">Update Model</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hardware & Model Recommendations -->
+      <section class="analysis-card">
+        <div class="card-header">
+          <div class="card-command">💻 Model Sizing & Hardware Guide</div>
+          <div class="risk-badge badge-low">RESOURCES</div>
+        </div>
+        <div class="card-body">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color); color: var(--term-purple);">
+                <th style="padding: 8px;">Model</th>
+                <th style="padding: 8px;">Parameter Size</th>
+                <th style="padding: 8px;">Download Size</th>
+                <th style="padding: 8px;">RAM / VRAM Required</th>
+                <th style="padding: 8px;">Pull Command</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border-glow);">
+                <td style="padding: 8px; color: var(--term-green);"><strong>Llama 3.2 1B</strong></td>
+                <td style="padding: 8px;">1.2 Billion</td>
+                <td style="padding: 8px;">~1.3 GB</td>
+                <td style="padding: 8px;">4 GB (Runs on thin laptops)</td>
+                <td style="padding: 8px;"><code>ollama run llama3.2:1b</code></td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-glow);">
+                <td style="padding: 8px; color: var(--term-cyan);"><strong>Qwen 2.5 3B (Recommended)</strong></td>
+                <td style="padding: 8px;">3.1 Billion</td>
+                <td style="padding: 8px;">~1.9 GB</td>
+                <td style="padding: 8px;">6-8 GB</td>
+                <td style="padding: 8px;"><code>ollama run qwen2.5:3b</code></td>
+              </tr>
+              <tr style="border-bottom: 1px solid var(--border-glow);">
+                <td style="padding: 8px; color: var(--term-purple);"><strong>DeepSeek R1 1.5B</strong></td>
+                <td style="padding: 8px;">1.5 Billion</td>
+                <td style="padding: 8px;">~1.1 GB</td>
+                <td style="padding: 8px;">4-6 GB</td>
+                <td style="padding: 8px;"><code>ollama run deepseek-r1:1.5b</code></td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; color: var(--term-white);"><strong>Mistral 7B</strong></td>
+                <td style="padding: 8px;">7.2 Billion</td>
+                <td style="padding: 8px;">~4.1 GB</td>
+                <td style="padding: 8px;">12-16 GB</td>
+                <td style="padding: 8px;"><code>ollama run mistral:7b</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Privacy & Local Security Guarantees -->
+      <section class="analysis-card">
+        <div class="card-header">
+          <div class="card-command">🛡️ Privacy & Security Architecture</div>
+          <div class="risk-badge badge-safe">100% LOCAL</div>
+        </div>
+        <div class="card-body">
+          <ul class="findings-list">
+            <li><strong>Strict Localhost Loopback:</strong> Server binds strictly to <code>127.0.0.1:5000</code> to prevent unauthorized local network access.</li>
+            <li><strong>No Cloud APIs:</strong> The application does not integrate, fallback to, or transmit data to paid or third-party cloud AI vendors.</li>
+            <li><strong>Zero Disk Persistence for Prompts:</strong> Your terminal inputs and questions are kept in temporary volatile browser memory during your session and are discarded upon refresh or closing.</li>
+            <li><strong>Simulated Execution Boundary:</strong> All shell commands submitted are scrutinized purely as text strings through static deterministic AST and regular expression parsers. They are <strong>never executed</strong> via subshells or OS processes.</li>
+            <li><strong>SSRF Protection:</strong> The Ollama runtime endpoint is validated to ensure it only communicates with loopback addresses (127.0.0.1 / localhost), preventing internal port scanning or network tampering.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div class="footer-highlight">GhostShell — A local AI experiment for the Ghost in the Machine challenge.</div>
+      <div class="footer-safety">🔒 Your commands are analyzed as text and are never executed by GhostShell.</div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("settingsSaveBtn").addEventListener("click", async () => {
+      const model = document.getElementById("settingsCustomModel").value.trim();
+      if (!model) return;
+      try {
+        const resp = await fetch("/api/settings/model", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          alert(`Model updated to ${data.current_model}!`);
+          window.location.reload();
+        } else {
+          alert(`Failed to update model: ${data.error}`);
+        }
+      } catch (err) {
+        alert(`Error communicating with backend: ${err.message}`);
+      }
+    });
+  </script>
+</body>
+</html>
