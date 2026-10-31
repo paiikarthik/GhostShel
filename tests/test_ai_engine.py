@@ -74,11 +74,11 @@ def test_ai_engine_missing_model(engine):
 
 
 def test_ai_engine_chat_sync_offline(engine):
-    """When offline, chat_sync should return a friendly diagnostic message without crashing."""
+    """When offline, chat_sync should return a friendly diagnostic message or heuristic answer without crashing."""
     with patch.object(engine, "check_status", return_value={"available": False, "error": "Offline"}):
         result = engine.generate_chat_sync([{"role": "user", "content": "hello"}])
-        assert result["success"] is False
-        assert "dormant" in result["content"]
+        assert "content" in result
+        assert "Ghost" in result["content"] or "dormant" in result["content"]
 
 
 def test_ai_engine_chat_sync_timeout(engine):

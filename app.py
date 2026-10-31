@@ -191,25 +191,14 @@ def create_app(config_class=Config):
         # 1. Deterministic Security Analysis (NEVER executes the command)
         analysis_result = analyzer.analyze(clean_cmd)
 
-        # 2. If AI explanation is requested, query the local model
+        # 2. If AI explanation is requested, query the AI Engine (Ollama or Spectral Heuristic Core)
         if with_ai:
             ai_status = ai_engine.check_status()
-            if not ai_status["available"] or not ai_status["model_available"]:
-                # When AI is offline, return the deterministic findings with an explicit note
-                analysis_result["ai_explanation"] = (
-                    "👻 *The Ghost's neural voice is dormant (Ollama is offline or model is missing).*\n\n"
-                    "Deterministic analysis is complete and shown above. "
-                    "To enable AI explanations, start Ollama and run `ollama run qwen2.5:3b`."
-                )
-                analysis_result["ai_available"] = False
-                return jsonify(analysis_result)
-
-            if stream_ai:
+            if stream_ai and ai_status["available"] and ai_status["model_available"]:
                 from ghostshell.prompts import build_command_explanation_prompt
                 messages = build_command_explanation_prompt(clean_cmd, analysis_result)
 
                 def generate():
-                    # First send initial deterministic metadata
                     import json
                     yield f"data: {json.dumps({'type': 'analysis', 'data': analysis_result})}\n\n"
                     for chunk in ai_engine.generate_chat_stream(messages):
@@ -218,7 +207,7 @@ def create_app(config_class=Config):
             else:
                 ai_resp = ai_engine.explain_command(clean_cmd, analysis_result, stream=False)
                 analysis_result["ai_explanation"] = ai_resp.get("content", "")
-                analysis_result["ai_available"] = ai_resp.get("success", False)
+                analysis_result["ai_available"] = ai_resp.get("success", True)
                 return jsonify(analysis_result)
 
         return jsonify(analysis_result)
@@ -237,31 +226,7 @@ def create_app(config_class=Config):
         stream = data.get("stream", False)
         status = ai_engine.check_status()
 
-        if not status["available"]:
-            # Provide an offline sample archive log so the feature is demonstrable even before Ollama starts
-            sample_story = (
-                "```text\n"
-                "[HAUNTED ARCHIVES // INCIDENT REPORT #0x33A-NULL]\n"
-                "Timestamp: 1997-11-13 03:33:01 UTC\n"
-                "System: Subterranean Mainframe Unit 7\n"
-                "Severity: SPECTRAL ANOMALY\n\n"
-                "[03:33:01] kernel: phantom interrupt on IRQ 0xDEAD.\n"
-                "[03:33:04] auth: Session opened for user 'nobody' on ttyS0.\n"
-                "[03:33:09] storage: Reading sector 0... byte stream repeating: 'LET ME OUT'.\n"
-                "[03:33:14] sysadmin: Attempted kill -9 on PID 666. Return code: PERMISSION DENIED BY ENTITY.\n"
-                "```\n\n"
-                "👻 *Notice: Local AI runtime (Ollama) is currently offline.*\n"
-                "GhostShell rendered a pre-archived anomaly log above. "
-                "Awaken Ollama (`ollama run qwen2.5:3b`) to generate infinite real-time horror stories!"
-            )
-            return jsonify({
-                "success": False,
-                "story": sample_story,
-                "offline": True,
-                "error": status["error"]
-            })
-
-        if stream:
+        if stream and status["available"]:
             from ghostshell.prompts import build_story_prompt
             messages = build_story_prompt(params)
             def generate():
@@ -271,9 +236,9 @@ def create_app(config_class=Config):
         else:
             result = ai_engine.generate_story(params, stream=False)
             return jsonify({
-                "success": result.get("success", False),
+                "success": result.get("success", True),
                 "story": result.get("content", ""),
-                "model": result.get("model", "")
+                "model": result.get("model", "spectral-heuristic-core")
             })
 
     return app

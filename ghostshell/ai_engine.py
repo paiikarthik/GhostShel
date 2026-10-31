@@ -14,6 +14,7 @@ from ghostshell.prompts import (
     build_command_explanation_prompt,
     build_story_prompt
 )
+from ghostshell.spectral_engine import SpectralHeuristicEngine
 
 logger = logging.getLogger(__name__)
 
@@ -137,18 +138,15 @@ class OllamaAIEngine:
     def generate_chat_stream(self, messages: List[Dict[str, str]]) -> Generator[str, None, None]:
         """
         Streams response tokens from Ollama's /api/chat endpoint using Server-Sent Events / NDJSON.
-        Yields JSON strings formatted for client streaming.
+        Falls back seamlessly to the Spectral Heuristic Core when Ollama is offline.
         """
         status = self.check_status()
         if not status["available"]:
+            user_msg = messages[-1].get("content", "") if messages else ""
+            fallback_text = SpectralHeuristicEngine.answer_chat(user_msg)
             yield json.dumps({
-                "type": "error",
-                "content": (
-                    f"👻 *The Ghost's voice remains dormant in the ethereal void.*\n\n"
-                    f"**Ollama status:** Offline ({status['error']})\n\n"
-                    f"```text\n{self.OFFLINE_SETUP_GUIDE}\n```\n\n"
-                    f"*Deterministic command security analysis remains fully functional without the model.*"
-                ),
+                "type": "token",
+                "content": fallback_text,
                 "done": True
             }) + "\n"
             return
@@ -216,19 +214,17 @@ class OllamaAIEngine:
     def generate_chat_sync(self, messages: List[Dict[str, str]]) -> Dict[str, Any]:
         """
         Synchronous single-shot chat completion.
+        Uses Ollama if online, or falls back to the Spectral Heuristic Core (0 MB Data required).
         """
         status = self.check_status()
         if not status["available"]:
+            user_msg = messages[-1].get("content", "") if messages else ""
+            fallback_text = SpectralHeuristicEngine.answer_chat(user_msg)
             return {
-                "success": False,
-                "content": (
-                    f"👻 *The Ghost's voice remains dormant in the ethereal void.*\n\n"
-                    f"**Local AI Status:** Offline ({status['error']})\n\n"
-                    f"{self.OFFLINE_SETUP_GUIDE}\n\n"
-                    f"*Note: Deterministic security checks remain 100% active!*"
-                ),
-                "error": status["error"],
-                "model": self.model
+                "success": True,
+                "content": fallback_text,
+                "model": "spectral-heuristic-core",
+                "eval_count": 0
             }
 
         payload = {
@@ -287,7 +283,13 @@ class OllamaAIEngine:
     def explain_command(self, command: str, analysis: Dict[str, Any], stream: bool = False):
         """
         Generates an AI explanation for a command while strictly preserving deterministic findings.
+        Uses Ollama if online, or the built-in Spectral Heuristic Engine offline (0 MB Data required).
         """
+        status = self.check_status()
+        if not status["available"]:
+            text = SpectralHeuristicEngine.explain_command(command, analysis)
+            return {"success": True, "content": text, "model": "spectral-heuristic-core"}
+
         messages = build_command_explanation_prompt(command, analysis)
         if stream:
             return self.generate_chat_stream(messages)
@@ -296,8 +298,14 @@ class OllamaAIEngine:
 
     def generate_story(self, params: Dict[str, Any], stream: bool = False):
         """
-        Generates a fictional horror story or incident report via the Haunted Archives prompt.
+        Generates a fictional horror story or incident report via Haunted Archives.
+        Uses Ollama if online, or procedural narrative generation offline (0 MB Data required).
         """
+        status = self.check_status()
+        if not status["available"]:
+            story = SpectralHeuristicEngine.generate_procedural_story(params)
+            return {"success": True, "content": story, "model": "spectral-heuristic-core"}
+
         messages = build_story_prompt(params)
         if stream:
             return self.generate_chat_stream(messages)
