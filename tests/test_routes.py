@@ -24,7 +24,7 @@ def test_index_route(client):
     assert b"GhostShell" in resp.data
     # Security headers check
     assert resp.headers.get("X-Content-Type-Options") == "nosniff"
-    assert resp.headers.get("X-Frame-Options") == "DENY"
+    assert resp.headers.get("X-Frame-Options") == "SAMEORIGIN"
 
 
 def test_css_route(client):

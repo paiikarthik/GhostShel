@@ -3,7 +3,10 @@
  * Frontend Controller & Interactive Engine
  */
 
-document.addEventListener("DOMContentLoaded", () => {
+function initGhostShell() {
+  if (window.__GHOSTSHELL_READY__) return;
+  window.__GHOSTSHELL_READY__ = true;
+
   // --- State ---
   const state = {
     activeMode: "terminal", // "terminal" | "guardian" | "archives"
@@ -665,4 +668,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Initial Polling & Startup ---
   fetchStatus();
   setInterval(fetchStatus, 30000); // Re-check status every 30s
-});
+}
+
+// Safe bootstrap checking document.readyState
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initGhostShell);
+} else {
+  initGhostShell();
+}

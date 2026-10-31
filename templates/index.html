@@ -4,7 +4,1029 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GhostShell: The Haunted AI Terminal 👻</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+/* ==========================================================================
+   GhostShell: The Haunted AI Terminal - Style System
+   Theme: Haunted Cyber-Terminal (Phosphor Green, Spectral Purple, Cyber Cyan)
+   ========================================================================== */
+
+:root {
+  /* Core Backgrounds */
+  --bg-deep-void: #06080d;
+  --bg-terminal: #0b0f17;
+  --bg-card: #111724;
+  --bg-card-hover: #172033;
+  --bg-input: #080c13;
+  --border-color: #1e293b;
+  --border-glow: #334155;
+
+  /* Terminal Colors */
+  --term-green: #00ff88;
+  --term-green-dim: #10b981;
+  --term-purple: #c084fc;
+  --term-purple-dark: #7e22ce;
+  --term-cyan: #22d3ee;
+  --term-cyan-dim: #0891b2;
+  --term-white: #f1f5f9;
+  --term-gray: #94a3b8;
+  --term-dark-gray: #475569;
+
+  /* Risk Badges */
+  --risk-critical: #ef4444;
+  --risk-critical-bg: rgba(239, 68, 68, 0.15);
+  --risk-high: #f97316;
+  --risk-high-bg: rgba(249, 115, 22, 0.15);
+  --risk-medium: #eab308;
+  --risk-medium-bg: rgba(234, 179, 8, 0.15);
+  --risk-low: #06b6d4;
+  --risk-low-bg: rgba(6, 182, 212, 0.15);
+  --risk-safe: #10b981;
+  --risk-safe-bg: rgba(16, 185, 129, 0.15);
+  --risk-review: #a855f7;
+  --risk-review-bg: rgba(168, 85, 247, 0.15);
+
+  /* Typography */
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Layout */
+  --max-width: 1300px;
+  --header-height: 64px;
+  --footer-height: 52px;
+  --border-radius: 8px;
+  --transition: all 0.2s ease-in-out;
+}
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-deep-void);
+  color: var(--term-white);
+  font-family: var(--font-mono);
+  font-size: 14.5px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep-void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--term-purple);
+}
+
+/* CRT Scanlines Overlay */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.02),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.02)
+  );
+  background-size: 100% 3px, 6px 100%;
+  opacity: 0.7;
+}
+
+.crt-overlay.disabled {
+  display: none;
+}
+
+/* Application Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Header */
+.app-header {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 0;
+  gap: 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.header-logo {
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.6));
+  animation: ghostHover 4s ease-in-out infinite;
+}
+
+.brand-text h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--term-green);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+}
+
+.brand-text .tagline {
+  font-size: 0.75rem;
+  color: var(--term-purple);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Header Controls & Status */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  transition: var(--transition);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-badge.online .status-dot {
+  background-color: var(--term-green);
+  box-shadow: 0 0 8px var(--term-green);
+}
+.status-badge.online {
+  border-color: rgba(0, 255, 136, 0.4);
+  color: var(--term-green);
+}
+
+.status-badge.offline .status-dot {
+  background-color: var(--risk-critical);
+  box-shadow: 0 0 8px var(--risk-critical);
+}
+.status-badge.offline {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.model-pill {
+  font-size: 0.8rem;
+  color: var(--term-cyan);
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-icon {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--term-white);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.btn-icon:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--term-purple);
+  color: var(--term-purple);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+/* Mode Switcher Nav */
+.mode-nav {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.mode-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--term-gray);
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+}
+
+.mode-btn:hover {
+  color: var(--term-white);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mode-btn.active {
+  background: var(--bg-terminal);
+  color: var(--term-green);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
+}
+
+.mode-btn[data-mode="guardian"].active {
+  color: var(--term-cyan);
+  border-color: rgba(34, 211, 238, 0.3);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
+}
+
+.mode-btn[data-mode="archives"].active {
+  color: var(--term-purple);
+  border-color: rgba(192, 132, 252, 0.3);
+  box-shadow: 0 0 12px rgba(192, 132, 252, 0.15);
+}
+
+/* Main Workspace */
+.main-workspace {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+/* Mode Panels */
+.mode-panel {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+}
+
+.mode-panel.active {
+  display: flex;
+}
+
+/* Terminal Window Frame */
+.terminal-window {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-terminal);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  flex: 1;
+  min-height: 520px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  color: var(--term-gray);
+}
+
+.window-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.window-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-red { background-color: #ef4444; }
+.dot-yellow { background-color: #eab308; }
+.dot-green { background-color: #10b981; }
+
+.terminal-title {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-pill {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--term-gray);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.action-pill:hover {
+  color: var(--term-green);
+  border-color: var(--term-green);
+}
+
+/* Terminal Log / Output Stream */
+.terminal-stream {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+/* Message Items */
+.stream-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+.msg-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.msg-user .msg-header {
+  color: var(--term-cyan);
+}
+
+.msg-ghost .msg-header {
+  color: var(--term-green);
+}
+
+.msg-system .msg-header {
+  color: var(--term-purple);
+}
+
+.msg-content {
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: rgba(17, 23, 36, 0.6);
+  border-left: 3px solid var(--border-glow);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.msg-user .msg-content {
+  border-left-color: var(--term-cyan);
+  background: rgba(8, 145, 178, 0.08);
+}
+
+.msg-ghost .msg-content {
+  border-left-color: var(--term-green);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.msg-system .msg-content {
+  border-left-color: var(--term-purple);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+/* Risk Analysis Cards */
+.analysis-card {
+  margin-top: 8px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-command {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--term-white);
+  word-break: break-all;
+}
+
+.risk-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.risk-badge.badge-critical {
+  background: var(--risk-critical-bg);
+  color: var(--risk-critical);
+  border: 1px solid var(--risk-critical);
+  animation: pulseGlow 2s infinite;
+}
+
+.risk-badge.badge-high {
+  background: var(--risk-high-bg);
+  color: var(--risk-high);
+  border: 1px solid var(--risk-high);
+}
+
+.risk-badge.badge-medium {
+  background: var(--risk-medium-bg);
+  color: var(--risk-medium);
+  border: 1px solid var(--risk-medium);
+}
+
+.risk-badge.badge-low {
+  background: var(--risk-low-bg);
+  color: var(--risk-low);
+  border: 1px solid var(--risk-low);
+}
+
+.risk-badge.badge-safe {
+  background: var(--risk-safe-bg);
+  color: var(--risk-safe);
+  border: 1px solid var(--risk-safe);
+}
+
+.risk-badge.badge-review {
+  background: var(--risk-review-bg);
+  color: var(--risk-review);
+  border: 1px solid var(--risk-review);
+}
+
+.card-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--term-gray);
+  margin-bottom: 4px;
+}
+
+.findings-list {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.findings-list li {
+  position: relative;
+  padding-left: 20px;
+  color: #f1f5f9;
+}
+
+.findings-list li::before {
+  content: "•";
+  position: absolute;
+  left: 6px;
+  color: var(--term-purple);
+  font-weight: bold;
+}
+
+.ghost-explanation-box {
+  background: rgba(168, 85, 247, 0.08);
+  border-left: 3px solid var(--term-purple);
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: #e2e8f0;
+}
+
+.recommendation-box {
+  background: rgba(6, 182, 212, 0.08);
+  border-left: 3px solid var(--term-cyan);
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: #e2e8f0;
+}
+
+/* Quick Prompt Pills */
+.quick-prompts-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(11, 15, 23, 0.95);
+  border-top: 1px solid var(--border-color);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.quick-prompts-label {
+  font-size: 0.75rem;
+  color: var(--term-gray);
+  text-transform: uppercase;
+}
+
+.pill-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--term-gray);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.pill-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--term-green);
+  border-color: var(--term-green);
+}
+
+.pill-btn.pill-danger:hover {
+  color: var(--risk-critical);
+  border-color: var(--risk-critical);
+}
+
+/* Terminal Input Bar */
+.terminal-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border-top: 1px solid var(--border-color);
+}
+
+.input-prompt-label {
+  color: var(--term-green);
+  font-weight: 700;
+  user-select: none;
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--term-white);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  resize: none;
+  min-height: 24px;
+  max-height: 120px;
+}
+
+.terminal-input::placeholder {
+  color: var(--term-dark-gray);
+}
+
+.btn-send {
+  background: var(--term-green-dim);
+  border: none;
+  color: var(--bg-deep-void);
+  font-family: inherit;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.btn-send:hover {
+  background: var(--term-green);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+}
+
+.btn-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Side Ghost Companion Card */
+.ghost-companion-card {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.avatar-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ghost-interactive-avatar {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
+  animation: ghostHover 4s ease-in-out infinite;
+}
+
+.ghost-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--term-green);
+}
+
+.ghost-status-desc {
+  font-size: 0.8rem;
+  color: var(--term-purple);
+  margin-top: 4px;
+}
+
+/* Info Box */
+.info-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  font-size: 0.8rem;
+  color: var(--term-gray);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-box h4 {
+  color: var(--term-white);
+  font-size: 0.85rem;
+}
+
+.shortcut-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shortcut-list kbd {
+  background: var(--bg-deep-void);
+  border: 1px solid var(--border-color);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--term-green);
+  font-size: 0.75rem;
+}
+
+/* Haunted Archives Controls */
+.archives-controls-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--term-gray);
+}
+
+.archive-select, .archive-input {
+  background: var(--bg-terminal);
+  border: 1px solid var(--border-color);
+  color: var(--term-white);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  border-radius: 4px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.archive-select:focus, .archive-input:focus {
+  border-color: var(--term-purple);
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+.btn-summon {
+  background: var(--term-purple-dark);
+  color: var(--term-white);
+  border: 1px solid var(--term-purple);
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-summon:hover {
+  background: var(--term-purple);
+  color: var(--bg-deep-void);
+  box-shadow: 0 0 16px rgba(192, 132, 252, 0.5);
+}
+
+/* CYOA Choices Bar */
+.cyoa-choices-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(168, 85, 247, 0.08);
+  border: 1px dashed rgba(168, 85, 247, 0.3);
+  border-radius: 6px;
+}
+
+.btn-cyoa {
+  background: var(--bg-card);
+  border: 1px solid var(--term-purple);
+  color: var(--term-purple);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  transition: var(--transition);
+}
+
+.btn-cyoa:hover {
+  background: var(--term-purple);
+  color: var(--bg-deep-void);
+}
+
+/* Typing Indicator Animation */
+.typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--term-green);
+  font-size: 0.85rem;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--term-green);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+/* Copy Button */
+.btn-copy {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--term-gray);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-copy:hover {
+  color: var(--term-green);
+  border-color: var(--term-green);
+}
+
+/* Footer */
+.app-footer {
+  min-height: var(--footer-height);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--term-dark-gray);
+  gap: 4px;
+}
+
+.footer-highlight {
+  color: var(--term-gray);
+}
+
+.footer-safety {
+  color: var(--term-green-dim);
+  font-weight: 600;
+}
+
+/* Settings Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal-dialog {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--border-radius);
+  width: 90%;
+  max-width: 560px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  animation: modalScale 0.2s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--term-green);
+}
+
+.modal-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Keyframe Animations */
+@keyframes ghostHover {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.8); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Reduced Motion Query */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 860px) {
+  .main-workspace {
+    flex-direction: column;
+  }
+  .ghost-companion-card {
+    width: 100%;
+    order: -1;
+  }
+  .ghost-interactive-avatar {
+    width: 70px;
+    height: 70px;
+  }
+  .app-header {
+    flex-direction: column;
+    height: auto;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .header-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .mode-nav {
+    flex-direction: column;
+  }
+}
+
+  </style>
 </head>
 <body>
   <!-- CRT Scanlines Overlay -->
@@ -336,6 +1358,687 @@ I run **100% locally** on your machine. Your prompts and commands never leave yo
   </div>
 
   <!-- Main JavaScript Controller -->
-  <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js"></script>
+  <script>
+/**
+ * GhostShell: The Haunted AI Terminal
+ * Frontend Controller & Interactive Engine
+ */
+
+function initGhostShell() {
+  if (window.__GHOSTSHELL_READY__) return;
+  window.__GHOSTSHELL_READY__ = true;
+
+  // --- State ---
+  const state = {
+    activeMode: "terminal", // "terminal" | "guardian" | "archives"
+    ollamaOnline: false,
+    currentModel: "qwen2.5:3b",
+    installedModels: [],
+    isGenerating: false,
+    conversationHistory: [],
+    crtEnabled: true
+  };
+
+  // --- DOM Elements ---
+  const dom = {
+    // Overlays & CRT
+    crtOverlay: document.getElementById("crtOverlay"),
+    toggleCrtBtn: document.getElementById("toggleCrtBtn"),
+
+    // Header & Status
+    statusBadge: document.getElementById("statusBadge"),
+    statusText: document.getElementById("statusText"),
+    modelPill: document.getElementById("modelPill"),
+    settingsBtn: document.getElementById("settingsBtn"),
+
+    // Mode Buttons
+    modeButtons: document.querySelectorAll(".mode-btn"),
+    modePanels: document.querySelectorAll(".mode-panel"),
+
+    // Companion Avatar & State
+    ghostAvatar: document.getElementById("ghostAvatar"),
+    ghostStatusDesc: document.getElementById("ghostStatusDesc"),
+
+    // Terminal Ghost Mode Elements
+    terminalStream: document.getElementById("terminalStream"),
+    terminalInput: document.getElementById("terminalInput"),
+    terminalSendBtn: document.getElementById("terminalSendBtn"),
+    clearTerminalBtn: document.getElementById("clearTerminalBtn"),
+
+    // Security Guardian Mode Elements
+    guardianInput: document.getElementById("guardianInput"),
+    guardianInspectBtn: document.getElementById("guardianInspectBtn"),
+    guardianResults: document.getElementById("guardianResults"),
+    guardianPlatformSelect: document.getElementById("guardianPlatformSelect"),
+
+    // Haunted Archives Elements
+    archiveStoryType: document.getElementById("archiveStoryType"),
+    archiveSetting: document.getElementById("archiveSetting"),
+    archiveIntensity: document.getElementById("archiveIntensity"),
+    archiveLength: document.getElementById("archiveLength"),
+    archivePromptInput: document.getElementById("archivePromptInput"),
+    archiveSummonBtn: document.getElementById("archiveSummonBtn"),
+    archiveOutput: document.getElementById("archiveOutput"),
+    cyoaChoicesContainer: document.getElementById("cyoaChoicesContainer"),
+
+    // Settings Modal
+    settingsModal: document.getElementById("settingsModal"),
+    closeSettingsBtn: document.getElementById("closeSettingsBtn"),
+    modalModelSelect: document.getElementById("modalModelSelect"),
+    modalCustomModelInput: document.getElementById("modalCustomModelInput"),
+    modalSaveModelBtn: document.getElementById("modalSaveModelBtn"),
+    modalOllamaStatusInfo: document.getElementById("modalOllamaStatusInfo")
+  };
+
+  // --- Helper: HTML Escaper ---
+  function escapeHtml(str) {
+    if (!str) return "";
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Helper: Format Markdown subset (code blocks, bold, inline code)
+  function formatMarkdown(text) {
+    if (!text) return "";
+    let formatted = escapeHtml(text);
+
+    // Code blocks ```code```
+    formatted = formatted.replace(/```([a-zA-Z0-9_\-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+      return `<pre class="code-block"><div class="code-header"><span>${lang || 'terminal'}</span><button class="btn-copy" onclick="copyToClipboard(this)">Copy</button></div><code>${code.trim()}</code></pre>`;
+    });
+
+    // Inline `code`
+    formatted = formatted.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+
+    // Bold **text**
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+    // Italic *text*
+    formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+    // Bullet points
+    formatted = formatted.replace(/^[\*\-]\s+(.*)$/gm, '• $1');
+
+    return formatted;
+  }
+
+  // --- Global Clipboard Copy ---
+  window.copyToClipboard = function(btn) {
+    let textToCopy = "";
+    const pre = btn.closest(".code-block");
+    if (pre) {
+      const code = pre.querySelector("code");
+      textToCopy = code ? code.innerText : "";
+    } else {
+      const card = btn.closest(".analysis-card, .msg-content, .card-body");
+      textToCopy = card ? card.innerText : "";
+    }
+
+    if (!textToCopy) return;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const originalText = btn.innerText;
+      btn.innerText = "Copied! 📋";
+      setTimeout(() => {
+        btn.innerText = originalText;
+      }, 2000);
+    }).catch(err => {
+      console.error("Clipboard copy failed:", err);
+    });
+  };
+
+  // --- Companion Avatar Mood Controller ---
+  function setGhostMood(mood, customStatus) {
+    if (!dom.ghostAvatar) return;
+    const aura = dom.ghostAvatar.querySelector(".ghost-aura");
+    const eyes = dom.ghostAvatar.querySelectorAll(".ghost-eye");
+
+    if (mood === "warning" || mood === "critical") {
+      dom.ghostStatusDesc.innerText = customStatus || "Spectral alarm triggered! Danger detected.";
+      dom.ghostStatusDesc.style.color = "var(--risk-critical)";
+      if (aura) aura.setAttribute("fill", "rgba(239, 68, 68, 0.4)");
+    } else if (mood === "thinking") {
+      dom.ghostStatusDesc.innerText = customStatus || "Divining the ethereal machine buffers...";
+      dom.ghostStatusDesc.style.color = "var(--term-purple)";
+      if (aura) aura.setAttribute("fill", "rgba(168, 85, 247, 0.4)");
+    } else if (mood === "safe") {
+      dom.ghostStatusDesc.innerText = customStatus || "The machine spirits are peaceful.";
+      dom.ghostStatusDesc.style.color = "var(--term-green)";
+      if (aura) aura.setAttribute("fill", "rgba(0, 255, 136, 0.3)");
+    } else {
+      dom.ghostStatusDesc.innerText = customStatus || "Haunting your terminal in local isolation.";
+      dom.ghostStatusDesc.style.color = "var(--term-purple)";
+      if (aura) aura.setAttribute("fill", "url(#ghostGlow)");
+    }
+  }
+
+  // --- Mode Switching ---
+  function switchMode(newMode) {
+    state.activeMode = newMode;
+    dom.modeButtons.forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.mode === newMode);
+    });
+    dom.modePanels.forEach(panel => {
+      panel.classList.toggle("active", panel.id === `mode-${newMode}`);
+    });
+
+    if (newMode === "guardian") {
+      setGhostMood("calm", "Security Guardian mode active. Ready to audit commands.");
+      dom.guardianInput.focus();
+    } else if (newMode === "archives") {
+      setGhostMood("calm", "Haunted Archives mode open. Ready to summon fictional tech horror.");
+    } else {
+      setGhostMood("calm", "Terminal Ghost active. Ask questions or type commands.");
+      dom.terminalInput.focus();
+    }
+  }
+
+  dom.modeButtons.forEach(btn => {
+    btn.addEventListener("click", () => switchMode(btn.dataset.mode));
+  });
+
+  // --- Check Local Ollama AI Status ---
+  async function fetchStatus() {
+    try {
+      const resp = await fetch("/api/status");
+      const data = await resp.json();
+      state.ollamaOnline = data.ollama_available;
+      state.currentModel = data.current_model || state.currentModel;
+      state.installedModels = data.installed_models || [];
+
+      // Update UI Status Badge
+      if (state.ollamaOnline && data.model_available) {
+        dom.statusBadge.className = "status-badge online";
+        dom.statusText.innerText = "Ollama Online";
+        dom.modelPill.innerText = `🤖 ${state.currentModel}`;
+      } else if (state.ollamaOnline && !data.model_available) {
+        dom.statusBadge.className = "status-badge offline";
+        dom.statusText.innerText = "Model Missing";
+        dom.modelPill.innerText = `⚠️ ${state.currentModel}`;
+      } else {
+        dom.statusBadge.className = "status-badge offline";
+        dom.statusText.innerText = "Ollama Offline";
+        dom.modelPill.innerText = "🔒 Non-AI Rules Only";
+      }
+
+      // Populate Settings Model Select
+      if (dom.modalModelSelect) {
+        dom.modalModelSelect.innerHTML = "";
+        if (state.installedModels.length > 0) {
+          state.installedModels.forEach(m => {
+            const opt = document.createElement("option");
+            opt.value = m.name;
+            opt.innerText = `${m.name} (${Math.round(m.size / (1024 * 1024 * 1024) * 10) / 10} GB)`;
+            if (m.name === state.currentModel) opt.selected = true;
+            dom.modalModelSelect.appendChild(opt);
+          });
+        } else {
+          const opt = document.createElement("option");
+          opt.value = state.currentModel;
+          opt.innerText = `${state.currentModel} (Not yet downloaded)`;
+          dom.modalModelSelect.appendChild(opt);
+        }
+      }
+
+      if (dom.modalOllamaStatusInfo) {
+        if (state.ollamaOnline) {
+          dom.modalOllamaStatusInfo.innerHTML = `<span style="color:var(--term-green);">● Ollama is connected at ${escapeHtml(data.base_url)}. ${state.installedModels.length} models detected.</span>`;
+        } else {
+          dom.modalOllamaStatusInfo.innerHTML = `<span style="color:var(--risk-critical);">● Ollama unreachable at ${escapeHtml(data.base_url)}. Rule-based command safety checks remain 100% operational offline.</span>`;
+        }
+      }
+    } catch (err) {
+      console.warn("Status check failed:", err);
+      dom.statusBadge.className = "status-badge offline";
+      dom.statusText.innerText = "Ollama Offline";
+      dom.modelPill.innerText = "🔒 Non-AI Rules Only";
+    }
+  }
+
+  // --- Terminal Stream Message Appender ---
+  function appendTerminalMessage(role, content, extraHtml = "") {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `stream-msg msg-${role}`;
+
+    let headerIcon = "👻 Ghost";
+    if (role === "user") headerIcon = "❯ mortal@user";
+    if (role === "system") headerIcon = "⚙️ System Notice";
+
+    msgDiv.innerHTML = `
+      <div class="msg-header">
+        <span>${headerIcon}</span>
+        <button class="btn-copy" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <div class="msg-content">${formatMarkdown(content)}${extraHtml}</div>
+    `;
+
+    dom.terminalStream.appendChild(msgDiv);
+    dom.terminalStream.scrollTop = dom.terminalStream.scrollHeight;
+    return msgDiv;
+  }
+
+  // --- Show Typing Indicator ---
+  function showTypingIndicator() {
+    const indicatorDiv = document.createElement("div");
+    indicatorDiv.id = "ghostTypingIndicator";
+    indicatorDiv.className = "stream-msg msg-ghost";
+    indicatorDiv.innerHTML = `
+      <div class="msg-header"><span>👻 Ghost is communing...</span></div>
+      <div class="msg-content">
+        <div class="typing-indicator">
+          <span>spectral thoughts forming</span>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    dom.terminalStream.appendChild(indicatorDiv);
+    dom.terminalStream.scrollTop = dom.terminalStream.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById("ghostTypingIndicator");
+    if (el) el.remove();
+  }
+
+  // --- Render Risk Analysis Card ---
+  function buildAnalysisCardHtml(analysis) {
+    const risk = analysis.risk_level || "SAFE";
+    let badgeClass = "badge-safe";
+    let icon = "🛡️";
+
+    if (risk === "CRITICAL") { badgeClass = "badge-critical"; icon = "🚨"; }
+    else if (risk === "HIGH") { badgeClass = "badge-high"; icon = "⚠️"; }
+    else if (risk === "MEDIUM") { badgeClass = "badge-medium"; icon = "⚡"; }
+    else if (risk === "LOW") { badgeClass = "badge-low"; icon = "ℹ️"; }
+    else if (risk === "REVIEW REQUIRED") { badgeClass = "badge-review"; icon = "❓"; }
+
+    const findingsHtml = (analysis.findings || []).map(f => `<li>${escapeHtml(f)}</li>`).join("");
+
+    let chainedHtml = "";
+    if (analysis.chained_commands && analysis.chained_commands.length > 1) {
+      chainedHtml = `
+        <div>
+          <div class="section-label">⛓️ Chained Operations Detected (${analysis.chained_commands.length})</div>
+          <ul class="findings-list">
+            ${analysis.chained_commands.map(c => `<li><code>${escapeHtml(c)}</code></li>`).join("")}
+          </ul>
+        </div>
+      `;
+    }
+
+    let aiExplanationHtml = "";
+    if (analysis.ai_explanation) {
+      aiExplanationHtml = `
+        <div>
+          <div class="section-label">👻 Ghost's AI Analysis</div>
+          <div class="ghost-explanation-box">${formatMarkdown(analysis.ai_explanation)}</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="analysis-card">
+        <div class="card-header">
+          <div class="card-command"><code>${escapeHtml(analysis.command)}</code></div>
+          <div class="risk-badge ${badgeClass}">${icon} ${escapeHtml(risk)}</div>
+        </div>
+        <div class="card-body">
+          <div style="font-size: 0.8rem; color: var(--term-gray);">
+            <strong>Platform:</strong> ${escapeHtml(analysis.platform || 'generic')}
+          </div>
+          <div>
+            <div class="section-label">🔍 Deterministic Security Findings</div>
+            <ul class="findings-list">${findingsHtml}</ul>
+          </div>
+          <div>
+            <div class="section-label">📖 Operational Explanation</div>
+            <p>${escapeHtml(analysis.explanation)}</p>
+          </div>
+          <div>
+            <div class="section-label">💡 Recommended Next Step</div>
+            <div class="recommendation-box">${escapeHtml(analysis.recommendation)}</div>
+          </div>
+          ${chainedHtml}
+          ${aiExplanationHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  // --- Terminal Chat Submission ---
+  async function submitTerminalMessage() {
+    const rawText = dom.terminalInput.value.trim();
+    if (!rawText || state.isGenerating) return;
+
+    dom.terminalInput.value = "";
+    appendTerminalMessage("user", rawText);
+    state.conversationHistory.push({ role: "user", content: rawText });
+
+    state.isGenerating = true;
+    dom.terminalSendBtn.disabled = true;
+    showTypingIndicator();
+    setGhostMood("thinking", "Spectral neural link active...");
+
+    try {
+      // Check if user is asking to analyze a command specifically
+      const isLikelyCommand = /^(?:rm|sudo|chmod|chown|kill|curl|wget|del|rmdir|Get-|Set-|format|dd|cat|type)\b/i.test(rawText);
+
+      if (isLikelyCommand) {
+        // Run command analyzer directly
+        const resp = await fetch("/api/analyze-command", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ command: rawText, with_ai: true })
+        });
+        const analysis = await resp.json();
+        removeTypingIndicator();
+
+        const cardHtml = buildAnalysisCardHtml(analysis);
+        appendTerminalMessage("ghost", `I have audited your command without executing it, mortal:`, cardHtml);
+
+        if (analysis.risk_level === "CRITICAL" || analysis.risk_level === "HIGH") {
+          setGhostMood("critical", `Alert! Detected ${analysis.risk_level} risk!`);
+        } else {
+          setGhostMood("safe", "Audit complete.");
+        }
+      } else {
+        // Conversational chat with Ghost
+        const resp = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: rawText,
+            history: state.conversationHistory
+          })
+        });
+        const data = await resp.json();
+        removeTypingIndicator();
+
+        const reply = data.content || "👻 *The machine spirits were silent.*";
+        appendTerminalMessage("ghost", reply);
+        state.conversationHistory.push({ role: "assistant", content: reply });
+        setGhostMood("calm");
+      }
+    } catch (err) {
+      removeTypingIndicator();
+      console.error("Chat error:", err);
+      appendTerminalMessage("ghost", `👻 *A phantom disconnect disrupted communication:* ${escapeHtml(err.message)}`);
+      setGhostMood("calm");
+    } finally {
+      state.isGenerating = false;
+      dom.terminalSendBtn.disabled = false;
+      dom.terminalInput.focus();
+    }
+  }
+
+  // --- Security Guardian Inspection ---
+  async function inspectGuardianCommand(customCommand) {
+    const cmd = customCommand || dom.guardianInput.value.trim();
+    if (!cmd) return;
+
+    dom.guardianInput.value = cmd;
+    dom.guardianResults.innerHTML = `
+      <div style="padding: 20px; text-align: center; color: var(--term-cyan);">
+        <div class="typing-indicator" style="justify-content: center;">
+          <span>Auditing syntax, flags, and dangerous vectors...</span>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    setGhostMood("thinking", "Inspecting command patterns deterministically...");
+
+    try {
+      const resp = await fetch("/api/analyze-command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: cmd, with_ai: true })
+      });
+      const analysis = await resp.json();
+
+      dom.guardianResults.innerHTML = buildAnalysisCardHtml(analysis);
+
+      if (analysis.risk_level === "CRITICAL" || analysis.risk_level === "HIGH") {
+        setGhostMood("critical", `CRITICAL VULNERABILITY DETECTED in ${analysis.platform || 'shell'} command!`);
+      } else if (analysis.risk_level === "SAFE") {
+        setGhostMood("safe", "Command passed all safety checks without destructive patterns.");
+      } else {
+        setGhostMood("calm", `Command risk assessed as ${analysis.risk_level}.`);
+      }
+    } catch (err) {
+      console.error("Guardian analysis failed:", err);
+      dom.guardianResults.innerHTML = `
+        <div style="color: var(--risk-critical); padding: 14px;">
+          ❌ Error analyzing command: ${escapeHtml(err.message)}
+        </div>
+      `;
+      setGhostMood("calm");
+    }
+  }
+
+  // --- Haunted Archives Story Summoner ---
+  async function summonHauntedArchive(cyoaChoice = null) {
+    if (state.isGenerating) return;
+
+    const payload = {
+      story_type: dom.archiveStoryType.value,
+      setting: dom.archiveSetting.value,
+      intensity: dom.archiveIntensity.value,
+      length: dom.archiveLength.value,
+      prompt: dom.archivePromptInput.value.trim(),
+      cyoa_choice: cyoaChoice || ""
+    };
+
+    state.isGenerating = true;
+    dom.archiveSummonBtn.disabled = true;
+    setGhostMood("thinking", "Summoning ghosts from the digital archive...");
+
+    dom.archiveOutput.innerHTML = `
+      <div style="padding: 24px; text-align: center; color: var(--term-purple);">
+        <div class="typing-indicator" style="justify-content: center;">
+          <span>Channeling phantom transmission...</span>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    dom.cyoaChoicesContainer.innerHTML = "";
+
+    try {
+      const resp = await fetch("/api/story", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await resp.json();
+      const storyText = data.story || "The archives yielded only static noise...";
+
+      dom.archiveOutput.innerHTML = `
+        <div class="msg-content" style="border-left-color: var(--term-purple);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <span style="font-size:0.75rem; color:var(--term-purple); text-transform:uppercase; letter-spacing:1px;">
+              📜 Haunted Archive // ${escapeHtml(payload.story_type)} // ${escapeHtml(payload.setting)}
+            </span>
+            <button class="btn-copy" onclick="copyToClipboard(this)">Copy Story</button>
+          </div>
+          ${formatMarkdown(storyText)}
+        </div>
+      `;
+
+      // If CYOA mode, extract or create interactive choice buttons
+      if (payload.story_type === "cyoa") {
+        renderCyoaButtons();
+      }
+
+      setGhostMood("calm", "Archive recovered from the ether.");
+    } catch (err) {
+      console.error("Story summon failed:", err);
+      dom.archiveOutput.innerHTML = `
+        <div style="color: var(--risk-critical); padding: 14px;">
+          ❌ Spectral archive corruption: ${escapeHtml(err.message)}
+        </div>
+      `;
+      setGhostMood("calm");
+    } finally {
+      state.isGenerating = false;
+      dom.archiveSummonBtn.disabled = false;
+    }
+  }
+
+  function renderCyoaButtons() {
+    dom.cyoaChoicesContainer.innerHTML = `
+      <div style="width: 100%; font-size: 0.8rem; color: var(--term-purple); margin-bottom: 6px;">
+        Choose your next spectral action:
+      </div>
+      <button class="btn-cyoa" onclick="handleCyoaChoice(1)">Option 1: Investigate the mysterious terminal prompt</button>
+      <button class="btn-cyoa" onclick="handleCyoaChoice(2)">Option 2: Cut the power to the server rack</button>
+      <button class="btn-cyoa" onclick="handleCyoaChoice(3)">Option 3: Send an emergency broadcast packet</button>
+    `;
+  }
+
+  window.handleCyoaChoice = function(choiceNumber) {
+    const choices = [
+      "Investigate the mysterious terminal prompt and dump memory buffers",
+      "Sever all physical power cables and disconnect from the network",
+      "Transmit an encrypted emergency broadcast packet into the darkness"
+    ];
+    const chosenText = choices[choiceNumber - 1] || "Proceed deeper into the facility";
+    summonHauntedArchive(chosenText);
+  };
+
+  // --- Keyboard Shortcuts ---
+  // Terminal Input Keydown
+  dom.terminalInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submitTerminalMessage();
+    }
+  });
+
+  // Guardian Input Keydown
+  dom.guardianInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      inspectGuardianCommand();
+    }
+  });
+
+  // Global Ctrl+L to Clear Conversation
+  window.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "l" || e.key === "L")) {
+      e.preventDefault();
+      clearTerminalConversation();
+    }
+  });
+
+  function clearTerminalConversation() {
+    if (confirm("👻 Clear the current haunted terminal session history?")) {
+      dom.terminalStream.innerHTML = "";
+      state.conversationHistory = [];
+      appendTerminalMessage("system", "Session buffers purged. The ghost awaits your next command.");
+    }
+  }
+
+  if (dom.clearTerminalBtn) {
+    dom.clearTerminalBtn.addEventListener("click", clearTerminalConversation);
+  }
+
+  dom.terminalSendBtn.addEventListener("click", submitTerminalMessage);
+  dom.guardianInspectBtn.addEventListener("click", () => inspectGuardianCommand());
+  dom.archiveSummonBtn.addEventListener("click", () => summonHauntedArchive());
+
+  // --- Quick Prompt Pills Handler ---
+  document.querySelectorAll(".pill-btn").forEach(pill => {
+    pill.addEventListener("click", () => {
+      const target = pill.dataset.prompt;
+      if (!target) return;
+
+      if (state.activeMode === "guardian") {
+        dom.guardianInput.value = target;
+        inspectGuardianCommand(target);
+      } else {
+        dom.terminalInput.value = target;
+        submitTerminalMessage();
+      }
+    });
+  });
+
+  // --- CRT Scanline Toggle ---
+  if (dom.toggleCrtBtn) {
+    dom.toggleCrtBtn.addEventListener("click", () => {
+      state.crtEnabled = !state.crtEnabled;
+      dom.crtOverlay.classList.toggle("disabled", !state.crtEnabled);
+      dom.toggleCrtBtn.innerText = state.crtEnabled ? "📺 CRT: ON" : "📺 CRT: OFF";
+    });
+  }
+
+  // --- Settings Modal Handler ---
+  if (dom.settingsBtn) {
+    dom.settingsBtn.addEventListener("click", () => {
+      fetchStatus();
+      dom.settingsModal.classList.add("open");
+    });
+  }
+
+  if (dom.closeSettingsBtn) {
+    dom.closeSettingsBtn.addEventListener("click", () => {
+      dom.settingsModal.classList.remove("open");
+    });
+  }
+
+  dom.settingsModal.addEventListener("click", (e) => {
+    if (e.target === dom.settingsModal) {
+      dom.settingsModal.classList.remove("open");
+    }
+  });
+
+  if (dom.modalSaveModelBtn) {
+    dom.modalSaveModelBtn.addEventListener("click", async () => {
+      const selectedModel = dom.modalCustomModelInput.value.trim() || dom.modalModelSelect.value;
+      if (!selectedModel) return;
+
+      try {
+        const resp = await fetch("/api/settings/model", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model: selectedModel })
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          state.currentModel = data.current_model;
+          dom.settingsModal.classList.remove("open");
+          fetchStatus();
+          appendTerminalMessage("system", `Active model switched to: **${escapeHtml(state.currentModel)}**`);
+        } else {
+          alert(`Model switch failed: ${data.error}`);
+        }
+      } catch (err) {
+        alert(`Error communicating with backend: ${err.message}`);
+      }
+    });
+  }
+
+  // --- Initial Polling & Startup ---
+  fetchStatus();
+  setInterval(fetchStatus, 30000); // Re-check status every 30s
+}
+
+// Safe bootstrap checking document.readyState
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initGhostShell);
+} else {
+  initGhostShell();
+}
+
+  </script>
 </body>
 </html>
