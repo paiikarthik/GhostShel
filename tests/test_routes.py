@@ -27,6 +27,13 @@ def test_index_route(client):
     assert resp.headers.get("X-Frame-Options") == "DENY"
 
 
+def test_css_route(client):
+    """GET /css/style.css should serve the stylesheet directly."""
+    resp = client.get("/css/style.css")
+    assert resp.status_code == 200
+    assert b"GhostShell" in resp.data or b"crt-overlay" in resp.data
+
+
 def test_settings_route(client):
     """GET /settings should render the settings page."""
     resp = client.get("/settings")

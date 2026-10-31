@@ -6,7 +6,7 @@ Flask web server powering the local, open-source AI terminal experience.
 import os
 import logging
 from flask import (
-    Flask, render_template, request, jsonify, Response, stream_with_context
+    Flask, render_template, request, jsonify, Response, stream_with_context, send_from_directory
 )
 from werkzeug.exceptions import RequestEntityTooLarge
 from config import Config
@@ -77,6 +77,11 @@ def create_app(config_class=Config):
         }), 500
 
     # Web Routes
+    @app.route("/css/<path:filename>")
+    def serve_css(filename):
+        """Serves CSS files directly from static/css or css/."""
+        return send_from_directory(os.path.join(app.root_path, "static", "css"), filename)
+
     @app.route("/")
     def index():
         """Main haunted terminal interface."""
